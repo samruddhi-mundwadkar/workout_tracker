@@ -1,0 +1,117 @@
+/* ===== EXTRA STYLES: paste at the BOTTOM of your style.css ===== */
+/* Works with both trackers (class names from each are included). */
+ 
+/* 1. Smooth theme and hover transitions everywhere */
+.card, .row, .tile, .btn, .go, .dot, .check, .tabs button, input, select {
+  transition: background-color .2s, border-color .2s, color .2s, box-shadow .2s, transform .15s;
+}
+ 
+/* 2. Soft shadows so cards lift off the background */
+.card, .tile {
+  box-shadow: 0 1px 2px rgba(16, 28, 54, .06), 0 6px 18px rgba(16, 28, 54, .06);
+}
+.card:hover, .tile:hover {
+  box-shadow: 0 2px 4px rgba(16, 28, 54, .08), 0 12px 28px rgba(16, 28, 54, .12);
+}
+ 
+/* 3. Gentle gradient page background */
+body {
+  background-image: radial-gradient(circle at 15% 0%, var(--soft) 0, transparent 45%),
+                    radial-gradient(circle at 100% 100%, var(--soft) 0, transparent 40%);
+  background-attachment: fixed;
+  min-height: 100vh;
+}
+ 
+/* 4. Button press feel */
+.btn:active, .go:active, .check:active, .dot:active, .tabs button:active {
+  transform: scale(.94);
+}
+.btn:hover, .go:hover {
+  filter: brightness(1.08);
+}
+ 
+/* 5. Pop animation when something is completed */
+@keyframes pop {
+  0%   { transform: scale(.6); }
+  60%  { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+.row.done .check, .tile.done .badge, .dot.on {
+  animation: pop .35s ease-out;
+}
+ 
+/* 6. Fade-in for new items and sections */
+@keyframes rise {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: none; }
+}
+.row, .tile, .card {
+  animation: rise .35s ease-out both;
+}
+ 
+/* 7. Animated progress ring and chart bars */
+.ring, .big {
+  transition: background .6s ease;
+}
+.wk span, .heat i {
+  transition: height .5s ease, background-color .3s;
+}
+.heat i:not(.fut):hover {
+  outline: 2px solid var(--ink);
+  outline-offset: 1px;
+}
+ 
+/* 8. Nicer inputs */
+input:focus, select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px var(--soft);
+  outline: none;
+}
+::placeholder {
+  color: var(--muted, var(--mut));
+  opacity: .7;
+}
+ 
+/* 9. Slim custom scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--line) transparent;
+}
+::-webkit-scrollbar { height: 8px; width: 8px; }
+::-webkit-scrollbar-thumb { background: var(--line); border-radius: 8px; }
+ 
+/* 10. Text selection color */
+::selection {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+ 
+/* 11. Sticky blur header bar (optional: works if you wrap the top in <header> or .bar) */
+header, .bar {
+  backdrop-filter: blur(6px);
+}
+ 
+/* 12. Bigger tap targets on phones */
+@media (max-width: 600px) {
+  .wrap { padding-left: 14px; padding-right: 14px; }
+  .check { width: 40px; height: 40px; }
+  .dot { width: 34px; height: 34px; }
+  .tiles { grid-template-columns: 1fr 1fr; }
+  .tile { min-height: 130px; padding: 14px; }
+  .hero { padding: 20px; }
+}
+ 
+/* 13. Print: clean black-and-white report of your progress */
+@media print {
+  body { background: #fff; color: #000; }
+  .add, .tabs, .foot, .del, .rm { display: none !important; }
+  .card, .tile { box-shadow: none; border: 1px solid #999; break-inside: avoid; }
+}
+ 
+/* 14. Respect users who turn animations off */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
