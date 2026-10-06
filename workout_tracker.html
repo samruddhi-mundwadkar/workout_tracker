@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Habit & Workout Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#EDF2F9;--ink:#13233D;--muted:#52627C;--card:#FFFFFF;--line:#CDD7E6;--accent:#1D5FD1;--accent-ink:#FFFFFF;--work:#C2571A;--soft:#DFE9F8;
+  box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){--bg:#0D1524;--ink:#E6EDF8;--muted:#92A3BF;--card:#16223A;--line:#2A3A5A;--accent:#5B9BFF;--accent-ink:#0D1524;--work:#F0A25E;--soft:#1D2C4A}
+}
+:root[data-theme="dark"]{--bg:#0D1524;--ink:#E6EDF8;--muted:#92A3BF;--card:#16223A;--line:#2A3A5A;--accent:#5B9BFF;--accent-ink:#0D1524;--work:#F0A25E;--soft:#1D2C4A}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"DM Sans",system-ui,sans-serif;font-size:16px;line-height:1.5}
+h1,h2{font-family:"Bricolage Grotesque","DM Sans",system-ui,sans-serif;margin:0;line-height:1.1}
+.wrap{max-width:960px;margin:0 auto;padding:24px 20px 60px}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+header{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:24px}
+h1{font-size:clamp(2rem,6vw,3rem);font-weight:800;letter-spacing:-.03em}
+.date{color:var(--muted)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin-bottom:20px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px}
+.stat{display:flex;align-items:center;gap:14px}
+.stat b{font-family:"Bricolage Grotesque",sans-serif;font-size:2rem;display:block;line-height:1}
+.stat small{color:var(--muted)}
+.ring{width:64px;height:64px;border-radius:50%;flex:none;display:grid;place-items:center;background:conic-gradient(var(--accent) calc(var(--p)*1%),var(--soft) 0)}
+.ring i{width:48px;height:48px;border-radius:50%;background:var(--card);display:grid;place-items:center;font-style:normal;font-weight:500;font-size:.9rem}
+.add{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px}
+.add input,.add select{font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.add input{flex:1 1 220px;min-width:0}
+button{font:inherit;cursor:pointer}
+.btn{background:var(--accent);color:var(--accent-ink);border:0;border-radius:10px;padding:12px 20px;font-weight:500}
+.grid{display:grid;grid-template-columns:1fr;gap:20px}
+@media (min-width:860px){.grid{grid-template-columns:1fr 1fr}.full{grid-column:1/-1}}
+h2{font-size:1.3rem;margin-bottom:14px}
+ul.list{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.row{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--bg)}
+.row.done{background:var(--soft)}
+.row.done .name{text-decoration:line-through;color:var(--muted)}
+.check{width:32px;height:32px;border-radius:50%;border:2px solid var(--line);background:var(--card);color:var(--accent-ink);font-weight:800;flex:none}
+.row.done .check{background:var(--accent);border-color:var(--accent)}
+.name{flex:1;min-width:0;overflow-wrap:anywhere}
+.tag{font-size:.75rem;border-radius:999px;padding:2px 10px;border:1px solid currentColor;color:var(--accent)}
+.tag.workout{color:var(--work)}
+.streak{font-size:.85rem;color:var(--muted);white-space:nowrap}
+.del{background:none;border:0;color:var(--muted);font-size:1.3rem;padding:4px 8px;border-radius:8px}
+.del:hover{color:var(--work)}
+.empty{color:var(--muted);margin:0}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:420px}
+th{font-weight:500;color:var(--muted);font-size:.8rem;padding:4px 2px}
+th.today{color:var(--accent);font-weight:800}
+td{padding:4px 2px;text-align:center}
+td.n{text-align:left;padding-right:10px;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dot{width:28px;height:28px;border-radius:8px;border:1px solid var(--line);background:var(--bg);padding:0}
+.dot.on{background:var(--accent);border-color:var(--accent)}
+.dot.on.workout{background:var(--work);border-color:var(--work)}
+.dot:disabled{opacity:.35;cursor:default}
+svg{width:100%;height:auto;display:block}
+.axis{color:var(--muted);font-size:11px;fill:currentColor}
+.foot{margin-top:24px;display:flex;justify-content:space-between;color:var(--muted);font-size:.85rem;flex-wrap:wrap;gap:8px}
+.foot button{background:none;border:0;color:var(--muted);text-decoration:underline}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div><h1>Habit & Workout Tracker</h1><div class="date" id="today"></div></div>
+  </header>
+
+  <div class="stats">
+    <div class="card stat"><div class="ring" id="ring"><i id="ringTxt">0%</i></div><div><b id="sToday">0/0</b><small>done today</small></div></div>
+    <div class="card stat"><div><b id="sBest">0</b><small>longest current streak (days)</small></div></div>
+    <div class="card stat"><div><b id="sWeek">0%</b><small>completion, last 7 days</small></div></div>
+  </div>
+
+  <div class="add">
+    <input id="newName" type="text" maxlength="60" placeholder="Add a habit or workout, e.g. Drink water" aria-label="Habit name">
+    <select id="newType" aria-label="Type"><option value="habit">Habit</option><option value="workout">Workout</option></select>
+    <button class="btn" id="addBtn">Add</button>
+  </div>
+
+  <div class="grid">
+    <section class="card"><h2>Today</h2><ul class="list" id="todayList"></ul></section>
+    <section class="card"><h2>This week</h2><div class="scroll" id="week"></div></section>
+    <section class="card full"><h2>Progress, last 14 days</h2><div id="chart"></div></section>
+  </div>
+
+  <div class="foot"><span id="saveNote">Saved in this browser on this device.</span><button id="resetBtn">Clear all data</button></div>
+</div>
+
+<script>
+(function(){
+  var KEY="habit-tracker-v1", mem=null, usingMem=false;
+  var data={habits:[],log:{}};
+  var DAYS=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+
+  function load(){
+    try{var r=localStorage.getItem(KEY); if(r){var d=JSON.parse(r); if(d&&d.habits&&d.log) data=d;}}
+    catch(e){usingMem=true;}
+  }
+  function save(){
+    try{localStorage.setItem(KEY,JSON.stringify(data));}
+    catch(e){usingMem=true;mem=JSON.stringify(data);}
+    document.getElementById("saveNote").textContent=usingMem?"Storage unavailable, progress will be lost when you close this page.":"Saved in this browser on this device.";
+  }
+  function key(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
+  function daysAgo(n){var d=new Date();d.setHours(12,0,0,0);d.setDate(d.getDate()-n);return d;}
+  function done(id,k){return (data.log[k]||[]).indexOf(id)>-1;}
+  function toggle(id,k){
+    var a=data.log[k]||[], i=a.indexOf(id);
+    if(i>-1)a.splice(i,1);else a.push(id);
+    data.log[k]=a;save();render();
+  }
+  function streak(id){
+    var n=0,i=done(id,key(daysAgo(0)))?0:1;
+    while(i<400&&done(id,key(daysAgo(i)))){n++;i++;}
+    return n;
+  }
+  function rate(k){
+    var hs=data.habits.filter(function(h){return h.created<=k;});
+    if(!hs.length)return 0;
+    var c=hs.filter(function(h){return done(h.id,k);}).length;
+    return Math.round(c/hs.length*100);
+  }
+  function el(t,c,txt){var e=document.createElement(t);if(c)e.className=c;if(txt!=null)e.textContent=txt;return e;}
+
+  function renderToday(){
+    var ul=document.getElementById("todayList");ul.innerHTML="";
+    var k=key(daysAgo(0));
+    if(!data.habits.length){var li=el("li");li.appendChild(el("p","empty","Nothing here yet. Add your first habit or workout above."));ul.appendChild(li);return;}
+    data.habits.forEach(function(h){
+      var d=done(h.id,k),li=el("li","row"+(d?" done":""));
+      var b=el("button","check",d?"\u2713":"");b.setAttribute("aria-label",(d?"Mark not done: ":"Mark done: ")+h.name);b.onclick=function(){toggle(h.id,k);};
+      li.appendChild(b);li.appendChild(el("span","name",h.name));
+      li.appendChild(el("span","tag "+h.type,h.type==="workout"?"Workout":"Habit"));
+      var s=streak(h.id);li.appendChild(el("span","streak",s?s+(s===1?" day":" days"):"no streak"));
+      var x=el("button","del","\u00d7");x.setAttribute("aria-label","Delete "+h.name);
+      x.onclick=function(){if(confirm('Delete "'+h.name+'" and its history?')){data.habits=data.habits.filter(function(z){return z.id!==h.id;});save();render();}};
+      li.appendChild(x);ul.appendChild(li);
+    });
+  }
+  function renderWeek(){
+    var w=document.getElementById("week");w.innerHTML="";
+    if(!data.habits.length){w.appendChild(el("p","empty","Your week appears here once you add a habit."));return;}
+    var t=el("table"),hr=el("tr");hr.appendChild(el("th"));
+    var ks=[];
+    for(var i=6;i>=0;i--){var d=daysAgo(i);ks.push(key(d));hr.appendChild(el("th",i===0?"today":"",DAYS[d.getDay()]));}
+    t.appendChild(hr);
+    data.habits.forEach(function(h){
+      var tr=el("tr");tr.appendChild(el("td","n",h.name));
+      ks.forEach(function(k){
+        var td=el("td"),on=done(h.id,k),b=el("button","dot"+(on?" on "+h.type:""));
+        b.setAttribute("aria-label",h.name+" on "+k+(on?", done":", not done"));
+        if(k<h.created)b.disabled=true;else b.onclick=function(){toggle(h.id,k);};
+        td.appendChild(b);tr.appendChild(td);
+      });
+      t.appendChild(tr);
+    });
+    w.appendChild(t);
+  }
+  function renderChart(){
+    var c=document.getElementById("chart");
+    if(!data.habits.length){c.innerHTML='<p class="empty">Add a habit to start seeing your progress over time.</p>';return;}
+    var W=640,H=190,pad=26,n=14,bw=(W-pad)/n,svg='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Daily completion percentage for the last 14 days">';
+    [0,50,100].forEach(function(v){var y=H-24-(H-44)*v/100;svg+='<line x1="'+pad+'" x2="'+W+'" y1="'+y+'" y2="'+y+'" stroke="var(--line)"/><text class="axis" x="0" y="'+(y+4)+'">'+v+'</text>';});
+    for(var i=0;i<n;i++){
+      var d=daysAgo(n-1-i),k=key(d),p=rate(k),h=(H-44)*p/100,x=pad+i*bw+4,y=H-24-h;
+      svg+='<rect x="'+x+'" y="'+(h?y:H-26)+'" width="'+(bw-8)+'" height="'+(h||2)+'" rx="4" fill="'+(p?"var(--accent)":"var(--line)")+'"><title>'+k+": "+p+'%</title></rect>';
+      svg+='<text class="axis" text-anchor="middle" x="'+(x+(bw-8)/2)+'" y="'+(H-6)+'">'+d.getDate()+'</text>';
+    }
+    c.innerHTML=svg+"</svg>";
+  }
+  function renderStats(){
+    var k=key(daysAgo(0)),tot=data.habits.length,dn=data.habits.filter(function(h){return done(h.id,k);}).length;
+    var p=tot?Math.round(dn/tot*100):0;
+    document.getElementById("sToday").textContent=dn+"/"+tot;
+    document.getElementById("ring").style.setProperty("--p",p);
+    document.getElementById("ringTxt").textContent=p+"%";
+    var best=0;data.habits.forEach(function(h){best=Math.max(best,streak(h.id));});
+    document.getElementById("sBest").textContent=best;
+    var s=0;for(var i=0;i<7;i++)s+=rate(key(daysAgo(i)));
+    document.getElementById("sWeek").textContent=Math.round(s/7)+"%";
+  }
+  function render(){renderStats();renderToday();renderWeek();renderChart();}
+
+  function add(){
+    var inp=document.getElementById("newName"),name=inp.value.trim();
+    if(!name){inp.focus();return;}
+    data.habits.push({id:"h"+Date.now()+Math.floor(Math.random()*1000),name:name,type:document.getElementById("newType").value,created:key(daysAgo(0))});
+    inp.value="";save();render();inp.focus();
+  }
+  document.getElementById("addBtn").onclick=add;
+  document.getElementById("newName").addEventListener("keydown",function(e){if(e.key==="Enter")add();});
+  document.getElementById("resetBtn").onclick=function(){if(confirm("Delete all habits and history?")){data={habits:[],log:{}};save();render();}};
+  document.getElementById("today").textContent=new Date().toLocaleDateString(undefined,{weekday:"long",day:"numeric",month:"long",year:"numeric"});
+  load();render();
+})();
+</script>
+</body>
+</html>
